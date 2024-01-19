@@ -1,8 +1,12 @@
 const express = require('express');
+const httpProxy = require('http-proxy');
 const axios = require('axios'); // Replace 'request' with 'axios'
 
 const app = express();
 const CLICKUP_API_BASE_URL = 'https://api.clickup.com/api/v2'; // ClickUp API base URL
+
+// Create a proxy server with custom application logic
+const proxy = httpProxy.createProxyServer({});
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -19,7 +23,7 @@ app.all('/clickup/*', async (req, res) => {
   console.log(`req.headers Authorization ${req.headers["Authorization"]}`);
 
   const apiUrl = `${CLICKUP_API_BASE_URL}/${req.params[0]}`; // Combine base URL with requested endpoint
-
+  console.log(`apiUrl ${apiUrl}`);
   // Extract relevant details from the incoming request
   const requestOptions = {
     method: req.method,
@@ -41,18 +45,18 @@ app.all('/clickup/*', async (req, res) => {
   if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
     requestOptions.data = req.body;
   }
+  console.log(`requestOptions.data ${requestOptions.data}`);
+  console.log(`requestOptions.params ${requestOptions.params}`);
+  console.log(`requestOptions.url ${requestOptions.url}`);
+  console.log(`requestOptions.method ${requestOptions.method}`);
+  console.log(`requestOptions.url ${requestOptions.url}`);
+  
+  // Forward the request to the target host
+  proxy.web(req, res, { target: apiUrl, changeOrigin: true }, (error) => {
+    // Handle any errors from the proxy or the target server
+    res.status(500).send('An error occurred: ' + error.message);
+  });
 
-  try {
-    // Make the request to the ClickUp API using axios
-    const response = await axios(requestOptions);
-
-    res.json(response.data);
-  } catch (error) {
-    res.status(error.response ? error.response.status : 500).json({
-      type: 'error',
-      message: error.response ? error.response.data : error.message,
-    });
-  }
 });
 
 const PORT = process.env.PORT || 5000;
