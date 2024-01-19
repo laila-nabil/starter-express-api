@@ -5,7 +5,9 @@ const rTracer = require('cls-rtracer')
 const app = express();
 const CLICKUP_API_BASE_URL = 'https://api.clickup.com/api/v2';
 
-const proxy = httpProxy.createProxyServer({});
+const proxy = httpProxy.createProxyServer({
+  ignorePath: true,
+});
 app.use(rTracer.expressMiddleware())
 
 
@@ -39,7 +41,7 @@ app.all('/*', async (req, res) => {
   // console.log(`- Query Params: ${JSON.stringify(req.query)}`);
   // console.log(`- Body: ${JSON.stringify(req.body)}`);
 
-  const apiUrl = `${CLICKUP_API_BASE_URL}`;
+  const apiUrl = `${CLICKUP_API_BASE_URL}/${req.params[0].replace("clickup","")}`; // Combine base URL with requested endpoint
   const requestOptions = {
     method: req.method,
     url: apiUrl,
