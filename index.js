@@ -3,7 +3,7 @@ const httpProxy = require('http-proxy');
 const axios = require('axios'); // Replace 'request' with 'axios'
 
 const app = express();
-const CLICKUP_API_BASE_URL = 'https://api.clickup.com/api/v2'; // ClickUp API base URL
+const CLICKUP_API_BASE_URL = 'https://www.api.clickup.com/api/v2'; // ClickUp API base URL
 
 // Create a proxy server with custom application logic
 const proxy = httpProxy.createProxyServer({});
